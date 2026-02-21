@@ -208,9 +208,9 @@ function ChucklePostAI(AI_option) {
             const ele = targetElement;
             const content = getTextContent(ele);
             // 添加调试日志
-            console.log("获取到的文章内容:", content.substring(0, 200) + "...");
+            console.log("获取到的文章内容:", content.substring(0, 500) + "...");
             // 优化提示词，确保AI理解需要处理的是文章内容
-            const prompt = `请根据以下文章内容生成一个简洁的摘要，不要超过200字，不要换行，不要提出建议或评论，只需总结文章主要内容。文章标题和内容如下：${content}`;
+            const prompt = `请根据以下文章内容生成一个简洁的摘要，不要超过500字，不要换行，不要提出建议或评论，只需总结文章主要内容。文章标题和内容如下：${content}`;
             const response = await getAIResponse(prompt);
             if (response) {
                 startAI(response);
