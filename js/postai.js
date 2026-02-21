@@ -230,6 +230,8 @@ function ChucklePostAI(AI_option) {
                 const response = await fetch(apiUrl, {
                     signal: signal,
                     method: "POST",
+                    mode: "cors", // 显式开启跨域模式
+                    credentials: "omit", // 忽略 cookie，提高成功率
                     headers: {
                         "Content-Type": "application/json"
                     },
