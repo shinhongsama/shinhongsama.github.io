@@ -5,7 +5,7 @@ new ChucklePostAI({
   // 文章内容所在的元素属性的选择器，也是AI挂载的容器，AI将会挂载到该容器的最前面
   el: '#post>#article-container',
   // 驱动AI所必须的key
-    key:'sk-1dbc99ec20a14921a1d7e596a9076dbf',
+    key:'',
   /* 非必须配置 */
   // 文章标题所在的元素属性的选择器，默认获取当前网页的标题
   title_el: '.post-title',
