@@ -197,7 +197,7 @@ function ChucklePostAI(AI_option) {
         // 新的灵感生成功能
         async function aiInspiration() {
             resetAI();
-            const response = await getAIResponse("你是一个灵感发生器，给用户提供有意思的灵感，不要超过200字，不要分段，不要分点，不要换行");
+            const response = await getAIResponse("你是一个灵感发生器，给用户提供有意思的灵感，不要低于100字，不要超过200字，不要分段，不要分点，不要换行");
             if (response) {
                 startAI(response);
             }
