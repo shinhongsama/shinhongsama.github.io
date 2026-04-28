@@ -50,10 +50,12 @@ function ChucklePostAI(AI_option) {
 
         const interface = {
             name: "然-AI",
-            introduce: "我是文章辅助AI: 然-AI，一个基于deepseek的强大语言模型，有什么可以帮到您？😊",
-            version: "deepseek",
-            button: ["介绍自己😎", "来点灵感💡", "生成AI简介🤖"],
-            ...AI_option.interface
+            introduce: "我是文章辅助AI...",
+            version: "双模型版",
+            ...AI_option.interface, // 1. 先继承外部配置（比如你的AI名字）
+            
+            // 2. 把按钮配置写在下面！强行覆盖掉外部传入的残缺数组
+            button: ["介绍自己", "来点灵感", "摘要(DeepSeek)🤖", "摘要(Gemini)✨"] 
         }
 
         insertCSS(); // 插入css
@@ -75,6 +77,7 @@ function ChucklePostAI(AI_option) {
         <div class="ai-btn-item">${interface.button[0]}</div>
         <div class="ai-btn-item">${interface.button[1]}</div>
         <div class="ai-btn-item">${interface.button[2]}</div>
+        <div class="ai-btn-item">${interface.button[3]}</div>
       </div>`;
 
         // AI主体业务逻辑
@@ -195,15 +198,18 @@ function ChucklePostAI(AI_option) {
         }
 
         // 新的灵感生成功能
+
+        // 把这段丢失的代码加回来！
         async function aiInspiration() {
             resetAI();
-            const response = await getAIResponse("你是一个灵感发生器，给用户提供有意思的灵感，不要低于100字，不要超过200字，不要分段，不要分点，不要换行");
+            const response = await getAIResponse("你是一个灵感发生器，给用户提供有意思的灵感，不要低于100字，不要超过200字，不要分段，不要分点，不要换行", "deepseek");
             if (response) {
                 startAI(response);
             }
         }
-
-        async function aiGenerateAbstract() {
+        
+// 【修改点】新增 provider 参数
+        async function aiGenerateAbstract(provider) {
             resetAI();
             const ele = targetElement;
             const content = getTextContent(ele);
@@ -211,15 +217,28 @@ function ChucklePostAI(AI_option) {
             console.log("获取到的文章内容:", content.substring(0, 500) + "...");
             // 优化提示词，确保AI理解需要处理的是文章内容
             const prompt = `请根据以下文章内容生成一个简洁的摘要，不要超过500字，不要换行，不要提出建议或评论，只需总结文章主要内容。文章标题和内容如下：${content}`;
-            const response = await getAIResponse(prompt);
+            
+            // 【修改点】注意这里把 const 改成了 let，因为后面我们要修改这段文本
+            let response = await getAIResponse(prompt, provider);
+            
             if (response) {
+                // 【新增功能】根据 provider 判断模型并生成后缀
+                const modelName = provider === 'gemini' ? 'Gemini' : 'DeepSeek';
+                const suffix = ` —— (以上由 ${modelName} 生成，不代表本人任何观点)`;
+                
+                // 将后缀拼接到 AI 回复的末尾
+                response = response + suffix;
+                
                 startAI(response);
             }
         }
 
+        
+
 
         // 统一的AI响应函数
-        async function getAIResponse(prompt) {
+        // 【修改点】接收 provider 参数
+        async function getAIResponse(prompt, provider = 'deepseek') {
             completeGenerate = false;
             controller = new AbortController();
             signal = controller.signal;
@@ -233,9 +252,10 @@ function ChucklePostAI(AI_option) {
                     headers: {
                         "Content-Type": "application/json"
                     },
+                    // 【核心修改】替换为我们双端路由 Worker 规定的格式
                     body: JSON.stringify({
-                        model: "deepseek-v4-pro",
-                        messages: [{ "role": "user", "content": prompt }],
+                        prompt: prompt,
+                        provider: provider
                     })
                 });
 
@@ -247,11 +267,15 @@ function ChucklePostAI(AI_option) {
                 }
 
                 if (!response.ok) {
+                    // 【新增】读取后端的真实报错并打印到控制台
+                    const errData = await response.json();
+                    console.error("后端传来的详细错误信息:", errData);
                     throw new Error('Response not ok');
                 }
 
                 const data = await response.json();
-                return data.choices[0].message.content;
+                // 【修改点】新版 Worker 统一返回了 content 字段，所以直接读取
+                return data.content;
             } catch (error) {
                 if (error.name === "AbortError") {
                     // 请求被中止
@@ -430,12 +454,19 @@ function ChucklePostAI(AI_option) {
         }
 
         // AI初始化，绑定按钮事件
+        // AI初始化，绑定按钮事件
         async function ai_init() {
             explanation = document.querySelector('.ai-explanation');
             post_ai = document.querySelector('.post-ai');
             ai_btn_item = document.querySelectorAll('.ai-btn-item');
 
-            const funArr = [aiIntroduce, aiInspiration, aiGenerateAbstract];
+            // 【修改点】绑定 4 个按钮的触发逻辑，并传递对应的 provider
+            const funArr = [
+                aiIntroduce, 
+                aiInspiration, 
+                () => aiGenerateAbstract('deepseek'), // 按钮 3 调 deepseek
+                () => aiGenerateAbstract('gemini')    // 按钮 4 调 gemini
+            ];
 
             ai_btn_item.forEach((item, index) => {
                 item.addEventListener('click', () => {
@@ -444,7 +475,8 @@ function ChucklePostAI(AI_option) {
             });
 
             if (AI_option.summary_directly) {
-                aiGenerateAbstract();
+                // 如果设置了自动生成，默认使用 deepseek
+                aiGenerateAbstract('deepseek'); 
             } else {
                 aiIntroduce();
             }
