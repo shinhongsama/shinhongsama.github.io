@@ -55,7 +55,7 @@ function ChucklePostAI(AI_option) {
             ...AI_option.interface, // 1. 先继承外部配置（比如你的AI名字）
             
             // 2. 把按钮配置写在下面！强行覆盖掉外部传入的残缺数组
-            button: ["介绍自己", "来点灵感", "摘要(DeepSeek)🤖", "摘要(Gemini)✨"] 
+            button: ["介绍自己", "来点灵感", "摘要(DeepSeek)(较快)🤖", "摘要(Gemini)(较慢)✨"] 
         }
 
         insertCSS(); // 插入css
