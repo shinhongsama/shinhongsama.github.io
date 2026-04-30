@@ -224,7 +224,7 @@ function ChucklePostAI(AI_option) {
             if (response) {
                 // 【新增功能】根据 provider 判断模型并生成后缀
                 const modelName = provider === 'gemini' ? 'Gemini' : 'DeepSeek';
-                const suffix = ` —— (以上由 ${modelName} 生成，不代表本人任何观点)`;
+                const suffix = ` —— (以上由 ${modelName} 生成，仅供参考)`;
                 
                 // 将后缀拼接到 AI 回复的末尾
                 response = response + suffix;
