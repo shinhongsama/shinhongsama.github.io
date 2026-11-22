@@ -1,0 +1,367 @@
+/* ===== Monet Dynamic Color Extraction Theme (OPT Light Glass + BLAST Dark Broadcast) ===== */
+:root {
+  --monet-base: #f6f8fc;
+  --monet-a1: rgba(130, 198, 245, 0.65);
+  --monet-a2: rgba(232, 168, 214, 0.60);
+  --monet-a3: rgba(176, 166, 240, 0.58);
+  --monet-a4: rgba(244, 212, 164, 0.54);
+  --monet-band1: rgba(130, 198, 245, 0.24);
+  --monet-band2: rgba(232, 168, 214, 0.24);
+  --monet-dot-1: #67b6ec;
+  --monet-dot-2: #d88bc6;
+  --monet-dot-3: #8c86e4;
+  --monet-accent: #67b6ec;
+}
+
+#monet-bg-layer {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--monet-base);
+}
+
+html.monet-enabled #monet-bg-layer {
+  display: block;
+}
+
+.monet-bg-surface {
+  position: absolute;
+  inset: -4%;
+  opacity: 0;
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity;
+}
+
+.monet-bg-surface.is-visible {
+  opacity: 1;
+}
+
+/* Light mode sheen (OPT editorial card feel) */
+html.monet-enabled:not(.dark-mode) #monet-bg-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.42) 0%, transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, 0.18) 100%);
+  pointer-events: none;
+}
+
+/* Dark mode BLAST broadcast overlay texture & vignette */
+html.monet-enabled.dark-mode #monet-bg-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      -55deg,
+      rgba(255, 255, 255, 0.016) 0px,
+      rgba(255, 255, 255, 0.016) 1px,
+      transparent 1px,
+      transparent 44px
+    ),
+    radial-gradient(ellipse at center, transparent 45%, rgba(6, 8, 14, 0.56) 100%);
+  pointer-events: none;
+}
+
+/* Transparent structural shells so Monet gradient shows across every page */
+html.monet-enabled body,
+html.monet-enabled .author-card-section,
+html.monet-enabled .about-page,
+html.monet-enabled .footer {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+html.monet-enabled .about-page::before {
+  display: none;
+}
+
+html.monet-enabled .footer {
+  border-top-color: rgba(128, 138, 160, 0.22) !important;
+}
+
+/* Light Mode Frosted OPT Glass Panels */
+html.monet-enabled:not(.dark-mode) .header.navbar-bubble .nav-container,
+html.monet-enabled:not(.dark-mode) .article-card,
+html.monet-enabled:not(.dark-mode) .post-container,
+html.monet-enabled:not(.dark-mode) .author-card:not(.author-card--with-bg),
+html.monet-enabled:not(.dark-mode) .toc-sidebar,
+html.monet-enabled:not(.dark-mode) .archive-post,
+html.monet-enabled:not(.dark-mode) .category-card,
+html.monet-enabled:not(.dark-mode) .category-section,
+html.monet-enabled:not(.dark-mode) .about-section,
+html.monet-enabled:not(.dark-mode) .filter-btn:not(.active),
+html.monet-enabled:not(.dark-mode) .tag-cloud a:not(:hover) {
+  background: rgba(255, 255, 255, 0.78) !important;
+  background-color: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 10px 30px rgba(24, 34, 58, 0.07);
+}
+
+html.monet-enabled:not(.dark-mode) .header:not(.navbar-bubble) {
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+
+html.monet-enabled:not(.dark-mode) .post-container {
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+html.monet-enabled:not(.dark-mode) .toc-sidebar {
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+}
+
+html.monet-enabled:not(.dark-mode) .tag,
+html.monet-enabled:not(.dark-mode) .post-tags .tag {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(120, 132, 160, 0.22);
+}
+
+/* Dark Mode BLAST Broadcast Obsidian Glass Panels */
+html.monet-enabled.dark-mode .header.navbar-bubble .nav-container,
+html.monet-enabled.dark-mode .article-card,
+html.monet-enabled.dark-mode .post-container,
+html.monet-enabled.dark-mode .author-card:not(.author-card--with-bg),
+html.monet-enabled.dark-mode .toc-sidebar,
+html.monet-enabled.dark-mode .archive-post,
+html.monet-enabled.dark-mode .category-card,
+html.monet-enabled.dark-mode .category-section,
+html.monet-enabled.dark-mode .about-section,
+html.monet-enabled.dark-mode .filter-btn:not(.active),
+html.monet-enabled.dark-mode .tag-cloud a:not(:hover) {
+  background: rgba(15, 19, 29, 0.72) !important;
+  background-color: rgba(15, 19, 29, 0.72) !important;
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  border: 1px solid rgba(255, 255, 255, 0.11) !important;
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+html.monet-enabled.dark-mode .header:not(.navbar-bubble) {
+  background: rgba(15, 19, 29, 0.8) !important;
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+}
+
+html.monet-enabled.dark-mode .toc-sidebar {
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1rem;
+}
+
+html.monet-enabled.dark-mode .filter-btn:not(.active) {
+  color: var(--primary-color);
+}
+
+html.monet-enabled.dark-mode .article-modal-content {
+  background-color: rgba(14, 18, 27, 0.86) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+html.monet-enabled:not(.dark-mode) .article-modal-content {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+/* Post sheet spacing so glass panel starts neatly below fixed header */
+html.monet-enabled:not(.monet-in-iframe) .post-wrapper {
+  padding-top: 94px;
+  padding-bottom: 48px;
+}
+
+html.monet-enabled:not(.monet-in-iframe) .post-container {
+  border-radius: var(--radius-xl);
+  padding: 2.2rem 2.4rem 2.6rem;
+}
+
+html.monet-enabled.monet-in-iframe .post-container {
+  border-radius: var(--radius-lg);
+  padding: 1.6rem 2rem 2.2rem;
+  margin-top: 12px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  html.monet-enabled:not(.monet-in-iframe) .post-wrapper {
+    padding-top: 84px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  html.monet-enabled:not(.monet-in-iframe) .post-container {
+    padding: 1.25rem 1.1rem 1.8rem;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* Subtle BLAST accent stripe along top of glass post & author cards when dark mode + Monet active */
+html.monet-enabled.dark-mode .post-container,
+html.monet-enabled.dark-mode .article-card {
+  position: relative;
+}
+
+html.monet-enabled .monet-accent-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 1200;
+  background: linear-gradient(90deg, var(--monet-dot-1), var(--monet-dot-2), var(--monet-dot-3));
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+html:not(.monet-enabled) .monet-accent-bar {
+  display: none;
+}
+
+/* ===== Main UI Navbar Monet Toggle Pill ===== */
+.monet-nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--primary-color);
+  background: rgba(128, 136, 156, 0.1);
+  border: 1px solid rgba(128, 136, 156, 0.24);
+  transition: all 0.22s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.monet-nav-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-color);
+}
+
+.monet-nav-toggle.is-on {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--monet-dot-1) 20%, transparent),
+    color-mix(in srgb, var(--monet-dot-2) 20%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--monet-dot-1) 55%, rgba(255, 255, 255, 0.35));
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--monet-dot-1) 24%, transparent);
+}
+
+body.dark-mode .monet-nav-toggle {
+  color: #e6ebf5;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+body.dark-mode .monet-nav-toggle.is-on {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.05)
+  );
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.monet-swatches {
+  display: inline-flex;
+  align-items: center;
+}
+
+.monet-swatch-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  margin-left: -3px;
+  transition: transform 0.2s ease, background-color 0.4s ease, filter 0.2s ease;
+}
+
+.monet-swatch-dot:first-child {
+  margin-left: 0;
+  background-color: var(--monet-dot-1);
+}
+
+.monet-swatch-dot:nth-child(2) {
+  background-color: var(--monet-dot-2);
+}
+
+.monet-swatch-dot:nth-child(3) {
+  background-color: var(--monet-dot-3);
+}
+
+.monet-nav-toggle:not(.is-on) .monet-swatch-dot {
+  filter: grayscale(85%) opacity(0.6);
+}
+
+/* Floating Dock Button (visible on mobile, modals, and everywhere) */
+.monet-float-toggle {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--monet-dot-1), var(--monet-dot-2), var(--monet-dot-3));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  transition: transform 0.24s ease, filter 0.24s ease, box-shadow 0.24s ease;
+}
+
+.monet-float-toggle:hover {
+  transform: scale(1.08);
+}
+
+.monet-float-toggle:not(.is-on) {
+  background: rgba(68, 72, 86, 0.85);
+  filter: grayscale(60%);
+}
+
+.monet-float-toggle svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28));
+}
+
+.monet-float-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: #4cd964;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.monet-float-toggle:not(.is-on) .monet-float-badge {
+  background: #8e8e93;
+  transform: scale(0.85);
+}
+
+@media (max-width: 768px) {
+  .monet-nav-toggle {
+    justify-content: center;
+    margin: 4px auto;
+  }
+}

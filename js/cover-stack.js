@@ -110,6 +110,9 @@
       if (rangeInput) rangeInput.value = String(idx);
       updateBackdrop(card.dataset.src);
       preloadAround(idx);
+      window.dispatchEvent(new CustomEvent('coverStackChange', {
+        detail: { index: idx, src: card.dataset.src, title: card.dataset.title || '' }
+      }));
     }
 
     function renderStack() {
