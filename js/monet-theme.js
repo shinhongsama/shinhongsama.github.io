@@ -354,12 +354,15 @@
       return document.body.classList.contains('dark-mode') || document.documentElement.classList.contains('dark-mode');
     }
 
-    function applyModalHeaderColors(colors) {
+    function applyModalColors(colors) {
       const rootStyle = document.documentElement.style;
+      const modalKeys = [
+        '--monet-modal-1', '--monet-modal-2', '--monet-modal-3', '--monet-modal-dot-1',
+        '--monet-modal-a1', '--monet-modal-a2', '--monet-modal-a3', '--monet-modal-a4',
+        '--monet-modal-band1', '--monet-modal-band2'
+      ];
       if (!colors) {
-        ['--monet-modal-1', '--monet-modal-2', '--monet-modal-3', '--monet-modal-dot-1'].forEach((k) => {
-          rootStyle.removeProperty(k);
-        });
+        modalKeys.forEach((k) => rootStyle.removeProperty(k));
         return;
       }
       const mVars = buildVarsForMode(colors, isDarkNow());
@@ -367,6 +370,13 @@
       rootStyle.setProperty('--monet-modal-2', mVars['--monet-nav-2']);
       rootStyle.setProperty('--monet-modal-3', mVars['--monet-nav-3']);
       rootStyle.setProperty('--monet-modal-dot-1', mVars['--monet-dot-1']);
+      rootStyle.setProperty('--monet-modal-a1', mVars['--monet-a1']);
+      rootStyle.setProperty('--monet-modal-a2', mVars['--monet-a2']);
+      rootStyle.setProperty('--monet-modal-a3', mVars['--monet-a3']);
+      rootStyle.setProperty('--monet-modal-a4', mVars['--monet-a4']);
+      rootStyle.setProperty('--monet-modal-band1', mVars['--monet-band1']);
+      rootStyle.setProperty('--monet-modal-band2', mVars['--monet-band2']);
+      return mVars;
     }
 
     let lastModalColors = null;
@@ -477,14 +487,45 @@
       lastDarkMode = dark;
       applyPalette(currentColors, true);
       if (lastModalColors) {
-        applyModalHeaderColors(lastModalColors);
+        applyModalColors(lastModalColors);
       }
     };
     window.addEventListener('themeChange', onModeChange);
     const bodyObserver = new MutationObserver(() => onModeChange());
     bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-    // Sync Monet enable/disable & modal header palette across tabs & article-modal iframes
+    // Pre-extract clicked article card cover BEFORE modal iframe loads so modal header + body + iframe spinner match instantly
+    if (window.self === window.top) {
+      document.addEventListener('click', (e) => {
+        if (!enabled || window.innerWidth <= 768) return;
+        const link = e.target && e.target.closest ? e.target.closest('.article-title a, .article-image a, .read-more') : null;
+        if (!link) return;
+        const card = link.closest('.article-card, .category-post, .tag-post');
+        const img = card ? card.querySelector('.article-image img, img') : null;
+        if (!img) return;
+        const src = img.currentSrc || img.getAttribute('src');
+        if (img.complete && img.naturalWidth > 0) {
+          const clickedColors = extractFromImageElement(img);
+          if (clickedColors) {
+            lastModalColors = clickedColors;
+            const mVars = applyModalColors(clickedColors);
+            try {
+              localStorage.setItem(CACHE_VARS_KEY, JSON.stringify(mVars));
+              localStorage.setItem(CACHE_COLORS_KEY, JSON.stringify(clickedColors));
+            } catch (err) {}
+            return;
+          }
+        }
+        if (src) {
+          extractFromUrl(src).then((colors) => {
+            lastModalColors = colors;
+            applyModalColors(colors);
+          });
+        }
+      }, true);
+    }
+
+    // Sync Monet enable/disable & modal palette across tabs & article-modal iframes
     window.addEventListener('storage', (e) => {
       if (e.key === STORAGE_KEY) {
         setEnabled(e.newValue === 'true', false, false);
@@ -496,7 +537,7 @@
         setEnabled(!!e.data.enabled, false, false);
       } else if (e.data.type === 'monetPaletteSync' && Array.isArray(e.data.colors)) {
         lastModalColors = e.data.colors;
-        applyModalHeaderColors(lastModalColors);
+        applyModalColors(lastModalColors);
       }
     });
 
@@ -505,7 +546,11 @@
       new MutationObserver(() => {
         if (!modalEl.classList.contains('active') && lastModalColors) {
           lastModalColors = null;
-          applyModalHeaderColors(null);
+          applyModalColors(null);
+          try {
+            localStorage.setItem(CACHE_VARS_KEY, JSON.stringify(buildVarsForMode(currentColors, isDarkNow())));
+            localStorage.setItem(CACHE_COLORS_KEY, JSON.stringify(currentColors));
+          } catch (err) {}
         }
       }).observe(modalEl, { attributes: true, attributeFilter: ['class'] });
     }

@@ -249,6 +249,75 @@ html.monet-enabled.dark-mode .article-modal-header {
     0 4px 18px rgba(0, 0, 0, 0.35);
 }
 
+/* Modal body & iframe + page loading-overlay show continuous Monet gradient immediately (no white screen wait) */
+html.monet-enabled:not(.dark-mode) .article-modal-body {
+  background-color: #f7f9fc !important;
+  background-image:
+    radial-gradient(ellipse 64% 58% at 50% 48%, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.08) 65%, transparent 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, 0.18) 100%),
+    radial-gradient(ellipse 68% 58% at 12% 14%, var(--monet-modal-a1, var(--monet-a1)) 0%, transparent 66%),
+    radial-gradient(ellipse 62% 54% at 88% 18%, var(--monet-modal-a2, var(--monet-a2)) 0%, transparent 64%),
+    radial-gradient(ellipse 72% 60% at 82% 86%, var(--monet-modal-a3, var(--monet-a3)) 0%, transparent 68%),
+    radial-gradient(ellipse 66% 56% at 16% 84%, var(--monet-modal-a4, var(--monet-a4)) 0%, transparent 65%),
+    linear-gradient(135deg, var(--monet-modal-band1, var(--monet-band1)) 0%, transparent 46%, var(--monet-modal-band2, var(--monet-band2)) 100%) !important;
+}
+
+html.monet-enabled.dark-mode .article-modal-body {
+  background-color: #0a0d14 !important;
+  background-image:
+    repeating-linear-gradient(
+      -55deg,
+      rgba(255, 255, 255, 0.016) 0px,
+      rgba(255, 255, 255, 0.016) 1px,
+      transparent 1px,
+      transparent 44px
+    ),
+    radial-gradient(ellipse at center, rgba(10, 13, 20, 0.24) 20%, rgba(6, 8, 14, 0.56) 100%),
+    radial-gradient(ellipse 68% 58% at 12% 14%, var(--monet-modal-a1, var(--monet-a1)) 0%, transparent 66%),
+    radial-gradient(ellipse 62% 54% at 88% 18%, var(--monet-modal-a2, var(--monet-a2)) 0%, transparent 64%),
+    radial-gradient(ellipse 72% 60% at 82% 86%, var(--monet-modal-a3, var(--monet-a3)) 0%, transparent 68%),
+    radial-gradient(ellipse 66% 56% at 16% 84%, var(--monet-modal-a4, var(--monet-a4)) 0%, transparent 65%),
+    linear-gradient(135deg, var(--monet-modal-band1, var(--monet-band1)) 0%, transparent 46%, var(--monet-modal-band2, var(--monet-band2)) 100%) !important;
+}
+
+html.monet-enabled .article-modal-iframe {
+  background: transparent !important;
+}
+
+html.monet-enabled:not(.dark-mode) .loading-overlay {
+  background-color: #f7f9fc !important;
+  background-image:
+    radial-gradient(ellipse 64% 58% at 50% 48%, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.08) 65%, transparent 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, 0.18) 100%),
+    radial-gradient(ellipse 68% 58% at 12% 14%, var(--monet-a1) 0%, transparent 66%),
+    radial-gradient(ellipse 62% 54% at 88% 18%, var(--monet-a2) 0%, transparent 64%),
+    radial-gradient(ellipse 72% 60% at 82% 86%, var(--monet-a3) 0%, transparent 68%),
+    radial-gradient(ellipse 66% 56% at 16% 84%, var(--monet-a4) 0%, transparent 65%),
+    linear-gradient(135deg, var(--monet-band1) 0%, transparent 46%, var(--monet-band2) 100%) !important;
+}
+
+html.monet-enabled.dark-mode .loading-overlay {
+  background-color: #0a0d14 !important;
+  background-image:
+    repeating-linear-gradient(
+      -55deg,
+      rgba(255, 255, 255, 0.016) 0px,
+      rgba(255, 255, 255, 0.016) 1px,
+      transparent 1px,
+      transparent 44px
+    ),
+    radial-gradient(ellipse at center, rgba(10, 13, 20, 0.24) 20%, rgba(6, 8, 14, 0.56) 100%),
+    radial-gradient(ellipse 68% 58% at 12% 14%, var(--monet-a1) 0%, transparent 66%),
+    radial-gradient(ellipse 62% 54% at 88% 18%, var(--monet-a2) 0%, transparent 64%),
+    radial-gradient(ellipse 72% 60% at 82% 86%, var(--monet-a3) 0%, transparent 68%),
+    radial-gradient(ellipse 66% 56% at 16% 84%, var(--monet-a4) 0%, transparent 65%),
+    linear-gradient(135deg, var(--monet-band1) 0%, transparent 46%, var(--monet-band2) 100%) !important;
+}
+
+html.monet-enabled .loading-spinner {
+  border-top-color: var(--monet-accent, var(--accent-color, #ff6b6b)) !important;
+}
+
 /* Top Monet gradient hairline on standalone pages; hidden in iframe so modal header transitions cleanly */
 html.monet-enabled .monet-accent-bar {
   position: fixed;
