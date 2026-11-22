@@ -120,3 +120,15 @@
 .dark-mode .article-modal-close:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Hide top navbar inside modal iframe from frame 0 (avoids navbar flash before window.load) */
+html.in-modal-iframe .header {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html.in-modal-iframe .post-wrapper {
+  margin-top: -60px;
+}

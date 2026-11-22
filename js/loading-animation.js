@@ -1,31 +1,68 @@
-
 /**
  * 加载动画控制
  */
-document.addEventListener('DOMContentLoaded', function() {
-  // 检查是否启用了加载动画
-  if (window.theme && window.theme.features && window.theme.features.loading_animation) {
-    // 创建加载动画元素
-    const loadingOverlay = document.createElement('div');
-    loadingOverlay.className = 'loading-overlay';
-    loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+(function() {
+  function removeOverlay(overlay) {
+    if (overlay && overlay.parentNode) {
+      overlay.parentNode.removeChild(overlay);
+    }
+  }
 
-    // 将加载动画添加到body
-    document.body.appendChild(loadingOverlay);
+  function initLoadingAnimation() {
+    let loadingOverlay = document.getElementById('loading-overlay') || document.querySelector('.loading-overlay');
+    const enabled = !!(window.theme && window.theme.features && window.theme.features.loading_animation);
 
-    // 页面完全加载后隐藏加载动画
-    window.addEventListener('load', function() {
+    if (!enabled) {
+      removeOverlay(loadingOverlay);
+      return;
+    }
+
+    if (!loadingOverlay) {
+      loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'loading-overlay';
+      loadingOverlay.className = 'loading-overlay';
+      loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+      document.body.prepend(loadingOverlay);
+    }
+
+    let hidden = false;
+    let fallbackTimer = null;
+
+    function hideOverlay() {
+      if (hidden) return;
+      hidden = true;
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
       setTimeout(function() {
         loadingOverlay.style.opacity = '0';
         loadingOverlay.style.visibility = 'hidden';
 
         // 动画结束后从DOM中移除
         setTimeout(function() {
-          if (document.body.contains(loadingOverlay)) {
-            document.body.removeChild(loadingOverlay);
-          }
+          removeOverlay(loadingOverlay);
         }, 500); // 等待淡出动画完成
       }, 300); // 短暂延迟以确保内容已渲染
+    }
+
+    if (document.readyState === 'complete') {
+      hideOverlay();
+    } else {
+      window.addEventListener('load', hideOverlay, { once: true });
+      fallbackTimer = setTimeout(hideOverlay, 10000);
+    }
+
+    window.addEventListener('pageshow', function(e) {
+      if (e.persisted) {
+        removeOverlay(document.getElementById('loading-overlay') || document.querySelector('.loading-overlay'));
+      }
     });
   }
-});
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLoadingAnimation);
+  } else {
+    initLoadingAnimation();
+  }
+})();

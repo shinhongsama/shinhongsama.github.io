@@ -55,19 +55,24 @@ document.addEventListener('DOMContentLoaded', function() {
           document.body.style.overflow = 'hidden';
 
           // 添加CSS规则隐藏文章页顶部导航栏
-          const style = document.createElement('style');
-          style.id = 'modal-nav-style';
-          style.innerHTML = '.article-modal-iframe::-webkit-scrollbar { display: none; }';
-          document.head.appendChild(style);
+          if (!document.getElementById('modal-nav-style')) {
+            const style = document.createElement('style');
+            style.id = 'modal-nav-style';
+            style.innerHTML = '.article-modal-iframe::-webkit-scrollbar { display: none; }';
+            document.head.appendChild(style);
+          }
 
-          // 当iframe加载完成后，向iframe注入CSS隐藏导航栏并上移文章内容
+          // 当iframe加载完成后，向iframe注入CSS隐藏导航栏并上移文章内容（兼容旧缓存页面）
           modalIframe.onload = function() {
             try {
               const iframeDoc = modalIframe.contentDocument || modalIframe.contentWindow.document;
-              const iframeStyle = iframeDoc.createElement('style');
-              iframeStyle.id = 'iframe-nav-style';
-              iframeStyle.innerHTML = '.header { display: none !important; height: 0; margin: 0; padding: 0; } .post-wrapper { margin-top: -60px; }';
-              iframeDoc.head.appendChild(iframeStyle);
+              if (!iframeDoc || !iframeDoc.head) return;
+              if (!iframeDoc.getElementById('iframe-nav-style')) {
+                const iframeStyle = iframeDoc.createElement('style');
+                iframeStyle.id = 'iframe-nav-style';
+                iframeStyle.innerHTML = '.header { display: none !important; height: 0; margin: 0; padding: 0; } .post-wrapper { margin-top: -60px; }';
+                iframeDoc.head.appendChild(iframeStyle);
+              }
             } catch (e) {
               console.error('无法访问iframe内容:', e);
             }
@@ -94,7 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 关闭模态窗口
     function closeModal() {
       modal.classList.remove('active');
-      modalIframe.src = ''; // 清空iframe内容，停止加载
+      modalIframe.onload = null;
+      modalIframe.src = 'about:blank'; // 清空iframe内容，停止加载且不触发首页重载
       document.body.style.overflow = ''; // 恢复背景滚动
 
       // 移除注入的样式
