@@ -329,21 +329,32 @@
       });
     }
 
-    // Trackpad horizontal swipe (never blocks vertical page scroll)
+    // Mouse wheel & trackpad inside cover container controls horizontal stack
     let wheelAccum = 0;
     let lastWheelAt = 0;
-    viewport.addEventListener('wheel', (e) => {
-      const useHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 2;
-      const useShiftWheel = e.shiftKey && Math.abs(e.deltaY) > 2;
-      if (!useHorizontal && !useShiftWheel) return;
-
+    root.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const now = performance.now();
-      if (now - lastWheelAt > 240) wheelAccum = 0;
-      lastWheelAt = now;
-      wheelAccum += useHorizontal ? e.deltaX : e.deltaY;
+      e.stopPropagation();
 
-      if (Math.abs(wheelAccum) >= 42) {
+      let delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (e.deltaMode === 1) delta *= 34;
+      else if (e.deltaMode === 2) delta *= 300;
+      if (Math.abs(delta) < 1) return;
+
+      const now = performance.now();
+      if (now - lastWheelAt > 180) wheelAccum = 0;
+      lastWheelAt = now;
+
+      // Discrete mouse wheel notch (>= 80px) steps 1 card cleanly per click
+      if (Math.abs(delta) >= 80 && Math.abs(wheelAccum) < 15) {
+        wheelAccum = 0;
+        goTo(targetIndex + (delta > 0 ? 1 : -1));
+        return;
+      }
+
+      // Smooth trackpad / high-res wheel accumulates before stepping
+      wheelAccum += delta;
+      if (Math.abs(wheelAccum) >= 55) {
         const dir = wheelAccum > 0 ? 1 : -1;
         wheelAccum = 0;
         goTo(targetIndex + dir);
