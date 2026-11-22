@@ -182,6 +182,9 @@
         '--monet-a4': hs(hsls[3][0], sats[3], lums[3], 0.34),
         '--monet-band1': hs(hsls[0][0], sats[0], 54, 0.17),
         '--monet-band2': hs(hsls[1][0], sats[1], 50, 0.17),
+        '--monet-nav-1': hs(hsls[0][0], clamp(sats[0], 56, 90), 28, 0.78),
+        '--monet-nav-2': hs(hsls[1][0], clamp(sats[1], 56, 90), 25, 0.72),
+        '--monet-nav-3': hs(hsls[2][0], clamp(sats[2], 54, 88), 26, 0.75),
         '--monet-dot-1': hs(hsls[0][0], clamp(sats[0], 58, 92), 64),
         '--monet-dot-2': hs(hsls[1][0], clamp(sats[1], 58, 92), 64),
         '--monet-dot-3': hs(hsls[2][0], clamp(sats[2], 58, 92), 66),
@@ -189,16 +192,19 @@
       };
     } else {
       // OPT Student ID Card luminous pastel silk washes
-      const sats = hsls.map(([, s]) => (s < 8 ? 14 : clamp(s * 0.8, 34, 72)));
-      const lums = [80, 83, 86, 78];
+      const sats = hsls.map(([, s]) => (s < 8 ? 14 : clamp(s * 0.85, 36, 76)));
+      const lums = [82, 84, 86, 80];
       return {
-        '--monet-base': '#f6f8fc',
-        '--monet-a1': hs(hsls[0][0], sats[0], lums[0], 0.70),
-        '--monet-a2': hs(hsls[1][0], sats[1], lums[1], 0.64),
-        '--monet-a3': hs(hsls[2][0], sats[2], lums[2], 0.60),
-        '--monet-a4': hs(hsls[3][0], sats[3], lums[3], 0.66),
-        '--monet-band1': hs(hsls[0][0], sats[0], 78, 0.28),
-        '--monet-band2': hs(hsls[1][0], sats[1], 80, 0.28),
+        '--monet-base': '#f7f9fc',
+        '--monet-a1': hs(hsls[0][0], sats[0], lums[0], 0.68),
+        '--monet-a2': hs(hsls[1][0], sats[1], lums[1], 0.62),
+        '--monet-a3': hs(hsls[2][0], sats[2], lums[2], 0.58),
+        '--monet-a4': hs(hsls[3][0], sats[3], lums[3], 0.64),
+        '--monet-band1': hs(hsls[0][0], sats[0], 80, 0.28),
+        '--monet-band2': hs(hsls[1][0], sats[1], 82, 0.28),
+        '--monet-nav-1': hs(hsls[0][0], clamp(sats[0] * 1.05, 42, 78), 85, 0.72),
+        '--monet-nav-2': hs(hsls[1][0], clamp(sats[1] * 1.05, 40, 76), 87, 0.64),
+        '--monet-nav-3': hs(hsls[2][0], clamp(sats[2] * 1.02, 38, 74), 88, 0.68),
         '--monet-dot-1': hs(hsls[0][0], clamp(sats[0], 48, 86), 60),
         '--monet-dot-2': hs(hsls[1][0], clamp(sats[1], 48, 86), 60),
         '--monet-dot-3': hs(hsls[2][0], clamp(sats[2], 48, 86), 62),
@@ -348,6 +354,23 @@
       return document.body.classList.contains('dark-mode') || document.documentElement.classList.contains('dark-mode');
     }
 
+    function applyModalHeaderColors(colors) {
+      const rootStyle = document.documentElement.style;
+      if (!colors) {
+        ['--monet-modal-1', '--monet-modal-2', '--monet-modal-3', '--monet-modal-dot-1'].forEach((k) => {
+          rootStyle.removeProperty(k);
+        });
+        return;
+      }
+      const mVars = buildVarsForMode(colors, isDarkNow());
+      rootStyle.setProperty('--monet-modal-1', mVars['--monet-nav-1']);
+      rootStyle.setProperty('--monet-modal-2', mVars['--monet-nav-2']);
+      rootStyle.setProperty('--monet-modal-3', mVars['--monet-nav-3']);
+      rootStyle.setProperty('--monet-modal-dot-1', mVars['--monet-dot-1']);
+    }
+
+    let lastModalColors = null;
+
     function applyPalette(colors, crossfade) {
       currentColors = colors;
       const vars = buildVarsForMode(colors, isDarkNow());
@@ -358,6 +381,12 @@
         localStorage.setItem(CACHE_VARS_KEY, JSON.stringify(vars));
         localStorage.setItem(CACHE_COLORS_KEY, JSON.stringify(colors));
       } catch (e) {}
+
+      if (window.self !== window.top && window.parent) {
+        try {
+          window.parent.postMessage({ type: 'monetPaletteSync', colors }, '*');
+        } catch (e) {}
+      }
 
       const gradCss = getSurfaceGradientCss(vars);
       if (!crossfade) {
@@ -447,22 +476,39 @@
       if (dark === lastDarkMode) return;
       lastDarkMode = dark;
       applyPalette(currentColors, true);
+      if (lastModalColors) {
+        applyModalHeaderColors(lastModalColors);
+      }
     };
     window.addEventListener('themeChange', onModeChange);
     const bodyObserver = new MutationObserver(() => onModeChange());
     bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-    // Sync Monet enable/disable across tabs & article-modal iframes
+    // Sync Monet enable/disable & modal header palette across tabs & article-modal iframes
     window.addEventListener('storage', (e) => {
       if (e.key === STORAGE_KEY) {
         setEnabled(e.newValue === 'true', false, false);
       }
     });
     window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'monetToggleSync') {
+      if (!e.data) return;
+      if (e.data.type === 'monetToggleSync') {
         setEnabled(!!e.data.enabled, false, false);
+      } else if (e.data.type === 'monetPaletteSync' && Array.isArray(e.data.colors)) {
+        lastModalColors = e.data.colors;
+        applyModalHeaderColors(lastModalColors);
       }
     });
+
+    const modalEl = document.querySelector('.article-modal');
+    if (modalEl) {
+      new MutationObserver(() => {
+        if (!modalEl.classList.contains('active') && lastModalColors) {
+          lastModalColors = null;
+          applyModalHeaderColors(null);
+        }
+      }).observe(modalEl, { attributes: true, attributeFilter: ['class'] });
+    }
 
     // Expose helper so modal parent/child can stay synced
     window.monetTheme = {
